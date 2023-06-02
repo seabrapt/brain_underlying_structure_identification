@@ -4,9 +4,6 @@ from keras.models import *
 
 from joblib import dump, load
 
-import sys
-sys.path.insert(1, '../')
-
 from functions import *
 from estimators import *
 from sklearn.metrics import accuracy_score
@@ -27,7 +24,7 @@ model_beta1_ss_ss = load_model('models7/model_ffnn_50p_1b_low_samples_200f_ss_ss
 model_inv_ss = load_model('models8/model_ffnn_50p_1b_200f_inv_ss')
 model_inv_ss_ss = load_model('models8/model_ffnn_50p_1b_200f_inv_ss_ss')
 
-cnn = load_model('models/model_50p_200f_max_alpha1')
+cnn = load_model('model_50p_200f_max_alpha1')
 
 # %% parameters
 min_size = 5000
