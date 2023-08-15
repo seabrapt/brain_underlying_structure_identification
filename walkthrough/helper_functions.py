@@ -67,6 +67,15 @@ def get_A(adj,c,rho):
     return A
 
 def get_target(A, undirected=True):
+    """
+        From the interaction matrix return the structure of the graph in the form of a vector
+
+        input: 
+            A: (2darray) interaction matrix
+
+        output:
+            y: (1darray) structural connectivity
+    """
     n = A.shape[0]
 
     if undirected==False:
@@ -106,7 +115,6 @@ def get_target(A, undirected=True):
 
 def generate_timeseries(A,tsize,x0,noise):
     '''
-    UPDATED TSG - FASTER
     Generates the syntetic time series data given the connectivity matrix and the initial condiction x(0),
     according to the dynnamical rule y(n + 1) = Ay(n) + x(n + 1)
 
@@ -128,9 +136,6 @@ def generate_timeseries(A,tsize,x0,noise):
     for i in range(1,tsize):
         x[i,:] = np.dot(A,x[i-1,:]) + noise[i,:]
     return x
-
-# - - - - - NOISE FUNCTIONS - - - - - - 
-# np.set_printoptions(precision=5, suppress=True)
 
 def generate_noise(N, n_samples, alpha, beta, perturbation=False):
     """
@@ -325,7 +330,6 @@ def normalize_features(features, tsize):
     return features / np.arange(tsize-offset, tsize+offset)
 
 
-#%% - - - - - - - - - - - - - - - - - - - Features - - - - - - - - - - - - - - - - - - -
 def get_upper_tr(M):
     """
         Return upper triangle of a matrix
