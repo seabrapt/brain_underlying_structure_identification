@@ -433,7 +433,7 @@ def get_r1_minus_r3_preds(timeseries, method='gmm'):
 
 def get_r1_preds(timeseries, method='gmm'):
     z=timeseries.T
-    tsize = z.shape[1]
+    sz, tsize = z.shape
 
     # 1-lag correlation matrix
     z1=z[:,2:tsize]
@@ -448,11 +448,18 @@ def get_r1_preds(timeseries, method='gmm'):
 def get_r0_inv_preds(timeseries, method = 'gmm'):
     z=timeseries.T
     tsize = z.shape[1]
+    sz, tsize = z.shape
+
+    identity = np.eye(sz, sz)
 
     # 0-lag correlation matrix
     R0 = np.matmul(z,z.T)/tsize
-
-    preds =  get_upper_tr(np.linalg.inv(R0)).reshape((-1,1))
+    try:
+        r_inv = np.linalg.inv(R0)
+    except Exception:
+        r_inv = np.linalg.lstsq(R0,identity, rcond=None)[0]
+    
+    preds =  get_upper_tr(r_inv).reshape((-1,1))
     preds = cluster_predictions(preds)
 
     
@@ -461,7 +468,7 @@ def get_r0_inv_preds(timeseries, method = 'gmm'):
 
 def get_granger_preds(timeseries, method = 'gmm'):
     z=timeseries.T
-    tsize = z.shape[1]
+    sz, tsize = z.shape
 
     # 0-lag correlation matrix
     R0=np.matmul(z,z.T)/tsize
@@ -470,9 +477,13 @@ def get_granger_preds(timeseries, method = 'gmm'):
     z1=z[:,2:tsize]
     z2=z[:,1:tsize-1]
     R1=np.matmul(z1,z2.T)/(tsize-1)
-
+    identity = np.eye(sz, sz)
     # R1*inv(R0)
-    r1_r0 =  np.matmul(R1,np.linalg.inv(R0))
+    try:
+        r_inv = np.linalg.inv(R0)
+    except Exception:
+        r_inv = np.linalg.lstsq(R0,identity, rcond=None)[0]
+    r1_r0 =  np.matmul(R1,r_inv)
 
     preds = get_upper_tr(r1_r0).reshape((-1,1))
     preds = cluster_predictions(preds)
@@ -491,10 +502,10 @@ def get_inverted_features(timeseries, n=200, undirected=True):
         Returns:
                 features (2darray): Matrix containing a fecture vector for each pair of nodes
     '''
-
     z = timeseries.T  
     tsize = z.shape[1]
     sz = z.shape[0]
+    identity = np.eye(sz, sz)
 
     if undirected==False:
         upper = int((sz*sz)-sz)
@@ -510,8 +521,11 @@ def get_inverted_features(timeseries, n=200, undirected=True):
         z1 = z[:,offset+1:tsize]
         z2 = z[:,1:tsize-offset]
         R = np.matmul(z1,z2.T)/(tsize-offset)
-        r_inv = func(np.linalg.inv(R))
         r = func(R)
+        try:
+            r_inv = func(np.linalg.inv(R))
+        except Exception:
+            r_inv = func(np.linalg.lstsq(R,identity, rcond=None)[0])
         features[:,counter] = r
         features[:,counter+1] = r_inv
 
@@ -519,7 +533,10 @@ def get_inverted_features(timeseries, n=200, undirected=True):
         z1 = z[:,offset+1:tsize]
         z2 = z[:,1:tsize-offset]
         R = np.matmul(z2,z1.T)/(tsize-offset)
-        r_inv = func(np.linalg.inv(R))
+        try:
+            r_inv = func(np.linalg.inv(R))
+        except Exception:
+            r_inv = func(np.linalg.lstsq(R,identity, rcond=None)[0])
         r = func(R)
         features[:,counter+2] = r
         features[:,counter+3] = r_inv
