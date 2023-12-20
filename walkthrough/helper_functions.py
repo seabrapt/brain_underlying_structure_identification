@@ -606,6 +606,22 @@ def save_pickle(name,comparison_data):
     pickle.dump(comparison_data, output)
     output.close()
     
+
+def get_model_architecture(n_features):
+    from keras.layers import Dense, Dropout
+    from keras.models import Sequential
+    #CNN architecture
+    model = Sequential()
+    model.add(Dense(512, activation='relu', input_shape=(n_features,)))
+    model.add(Dense(256, activation='relu'))
+    model.add(Dropout(0.2))
+
+    model.add(Dense(200, activation='tanh'))
+    model.add(Dense(100, activation='tanh'))
+    model.add(Dense(1, activation='linear'))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+
 # %% main
 if __name__ == "__main__":
     print("Nothing to run")
