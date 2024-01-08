@@ -622,6 +622,29 @@ def get_model_architecture(n_features):
     model.compile(optimizer='adam', loss='mse')
     return model
 
+def get_cnn_architecture(n_features):
+    from keras.layers import Conv1D, MaxPooling1D, Dense, Dense, GlobalMaxPooling1D, Dropout
+    from keras.models import Sequential
+    #CNN architecture
+    model = Sequential()
+    model.add(Conv1D(filters=64, kernel_size=2, strides=2, activation='relu', input_shape=(n_features,1)))
+    model.add(Conv1D(filters=128, kernel_size=3, activation='relu'))
+    model.add(Conv1D(filters=256, kernel_size=3, activation='relu'))
+    model.add(MaxPooling1D(pool_size=2))
+
+    model.add(Conv1D(filters=128, kernel_size=3, activation='relu'))
+    model.add(Conv1D(filters=128, kernel_size=2, activation='relu'))
+    model.add(MaxPooling1D(pool_size=2))
+
+    model.add(Conv1D(filters=64, kernel_size=1, activation='relu'))
+    model.add(GlobalMaxPooling1D())
+
+    model.add(Dropout(0.2))
+    model.add(Dense(200, activation='tanh'))
+    model.add(Dense(100, activation='tanh'))
+    model.add(Dense(1, activation='linear'))
+    model.compile(optimizer='adam', loss='mse')
+    return model
 # %% main
 if __name__ == "__main__":
     print("Nothing to run")
